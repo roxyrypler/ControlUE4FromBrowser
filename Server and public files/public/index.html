@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TestServer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+
+</head>
+
+<body>
+    
+
+
+    <script src="libs/three.js"></script>
+    <script src="libs/OrbitControls.js"></script>
+    <script>
+        let socket = io.connect("http://localhost:3000");
+        let btn = document.getElementById("btn").addEventListener("click", () => {
+
+            let stringData = {
+                hello: "Hello dude"
+            }
+            socket.emit("btn", stringData);
+            console.log("Hello");
+        });
+
+      
+
+        let scene = new THREE.Scene();
+        let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        
+
+
+        let rotationSpeed = 0;
+        let texture = new THREE.TextureLoader().load('img/mat1.jpg');
+
+
+        let renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        let geometry = new THREE.BoxGeometry(1, 1, 1);
+        let material = new THREE.MeshBasicMaterial({
+            map: texture
+        });
+        let cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        camera.position.z = 5;
+
+        
+
+        let animate = function() {
+            requestAnimationFrame(animate);
+
+            cube.rotation.x += rotationSpeed;
+            cube.rotation.y += rotationSpeed;
+            //console.log(controls.object);
+            //console.log(controls.object.rotation._y);
+            //console.log(controls.object.rotation._z);
+            
+            try {
+                let rotData = {
+                    x: controls.object.rotation._x,
+                    y: controls.object.rotation._y,
+                    z: controls.object.rotation._z
+                }
+
+                socket.emit("rotationData", rotData);
+            } catch (e) {
+                console.log(e);
+            }
+            
+            //console.log(controls.zoom);
+
+            renderer.render(scene, camera);
+        };
+
+
+
+        animate();
+    </script>
+
+</body>
+</html>
+
